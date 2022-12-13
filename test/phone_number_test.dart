@@ -1,5 +1,6 @@
 import 'package:phone_number_metadata/phone_number_metadata.dart';
 import 'package:phone_numbers_parser/phone_numbers_parser.dart';
+import 'package:phone_numbers_parser/src/utils/_metadata_finder.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -106,8 +107,21 @@ void main() {
       });
 
       test('should parse incomplete raw phone numbers', () {
-        expect(PhoneParser.parse('33').isoCode, equals(IsoCode.FR));
-        expect(PhoneParser.parse('33').nsn, equals(''));
+        for (final example in metadataExamplesByIsoCode.entries) {
+          final exampleNational = example.value.mobile;
+
+          if (MetadataFinder.getMetadataForIsoCode(example.key).countryCode ==
+              '44') continue;
+          if (example.key == IsoCode.KZ) continue;
+          if (example.key == IsoCode.MX) continue;
+
+          for (var i = 0; i < exampleNational.length; i++) {
+            final part = exampleNational.substring(0, i + 1);
+
+            expect(PhoneParser.parse(part, destinationCountry: example.key).nsn,
+                equals(part));
+          }
+        }
       });
     });
 

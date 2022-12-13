@@ -53,6 +53,7 @@ abstract class PhoneParser {
       phoneWithoutExitCode: withoutExitCode,
       callerMetadata: callerMetadata,
     );
+    final leadingDigits = destinationMetadata.leadingDigits;
     final national = CountryCodeParser.removeCountryCode(
       withoutExitCode,
       destinationMetadata.countryCode,
@@ -61,10 +62,14 @@ abstract class PhoneParser {
       national,
       destinationMetadata,
     );
-    nsn = NationalNumberParser.transformLocalNsnToInternationalUsingPatterns(
-      nsn,
-      destinationMetadata,
-    );
+
+    if (leadingDigits == null || !nsn.startsWith(leadingDigits)) {
+      nsn = NationalNumberParser.transformLocalNsnToInternationalUsingPatterns(
+        nsn,
+        destinationMetadata,
+      );
+    }
+
     // at this point we have the phone number that has been processed, but
     // if it is invalid, we remove the processing of the nsn part
     // this allows for a better behavior in some input usages where the
